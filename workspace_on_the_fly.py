@@ -63,12 +63,11 @@ def _get_target_workspace():
 def _move_to_workspace(is_temp_workspace=False):
     # get focused window
     active_window = i3.filter(nodes=[], focused=True)
-    instance = active_window[0]['window_properties']['instance'].lower()
+    instance = active_window[0]['window_properties']['instance']
     if is_temp_workspace:
-        workspace = instance
+        workspace = instance.lower()
     else:
         workspace = _get_target_workspace()
-    # create temporary workspace + bindsym for this window
     i3.workspace(workspace)
     i3.command('[instance="{0}"] move workspace {1}'.format(instance, workspace))
 
