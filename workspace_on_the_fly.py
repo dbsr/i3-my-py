@@ -18,8 +18,24 @@
 import argparse
 import sys
 import commands
+import os
 
 import i3
+
+def _get_all_workspaces():
+    with open(os.path.expanduser('~/.config/i3/config')) as f:
+        config = f.read()
+        variables = dict((k, v) for k, v in re.findall(r'set.*(\$[^ ]+)[ "]*([a-z]+)', config, re.M))
+        workspaces = [variables[variable] for variable in 
+                        re.findall(r'^\s*workspace.*(\$[^ ]+)', config, re.M)
+                        if variables.find(variable)]
+
+    all_workspaces = workspaces + filter(
+        lambda w: w not in workspaces,
+        [w['name'] for w in i3.get_workspaces()])
+
+    return all_workspaces
+
 
 
 def _i3input_getch(getKey=None):
@@ -34,7 +50,7 @@ def _i3input_getch(getKey=None):
 
 
 def _get_target_workspace():
-    workspaces = [w['name'] for w in i3.get_workspaces()]
+    workspaces = _get_all_workspaces()
     input_string = ''
     while True:
         c = _i3input_getch('command')
